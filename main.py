@@ -121,12 +121,19 @@ class TodoList:
             if task_index:
                 task_index = task_index[0]
                 self.listbox.delete(task_index)
+                print(task_index)
                 query = f"""
                             DELETE FROM `{self.curr_date}` WHERE id = {task_index+1};
                         """
                 cursor.execute(query)
                 cnx.commit()
                 del self.tasks[task_index]
+                query = f"""
+                            UPDATE `{self.curr_date}` SET id = (id - 1) WHERE id > {task_index+1};
+                        """
+                cursor.execute(query)
+                cnx.commit()
+
             else:
                 messagebox.showerror(title="No task selected", message="Please select a task to mark complete.")
         else:
