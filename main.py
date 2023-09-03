@@ -11,6 +11,7 @@ cursor = cnx.cursor()
 # --> make functions for the dbms related functions
 # --> use pandas to get analytics from the database for the whole month at the end of the month.
 
+
 class TodoList:
     def __init__(self, master):
         self.master = master
