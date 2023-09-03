@@ -7,7 +7,9 @@ import mysql.connector
 cnx = mysql.connector.connect(user="root", password="password", host="localhost", database="todo")
 cursor = cnx.cursor()
 
-
+# Optimizations left to do --> Make a module for this class and import it into the main module.
+# --> make functions for the dbms related functions
+# --> use pandas to get analytics from the database for the whole month at the end of the month.
 
 class TodoList:
     def __init__(self, master):
@@ -77,26 +79,31 @@ class TodoList:
 
     def add_task(self, event=None):
         if self.curr_date == self.selected_date:
-            index = len(self.tasks) + 1
-            task = (index, self.new_task_entry.get().title(), 0)
-            flag = False
-            for i in self.tasks:
-                if i[1] == task[1]:
-                    flag = True
-            if flag:
-                messagebox.showerror(title="Already Exists", message="Task already in list")
+            task_string = self.new_task_entry.get()
+            if set(task_string) == {" "} or task_string == "":
+                messagebox.showerror(title="Task Error", message="Please add a valid task")
+                self.new_task_entry.delete(0, tk.END)
             else:
-                if task:
-                    self.tasks.append(task)
-                    query = f"""
-                                INSERT INTO `{self.selected_date}` VALUES({index}, '{task[1]}', {task[2]});
-                            """
-                    cursor.execute(query)
-                    cnx.commit()
-                    self.listbox.insert(tk.END, self.tasks[-1][1])
-                    self.new_task_entry.delete(0, tk.END)
+                index = len(self.tasks) + 1
+                task = (index, self.new_task_entry.get().title(), 0)
+                flag = False
+                for i in self.tasks:
+                    if i[1] == task[1]:
+                        flag = True
+                if flag:
+                    messagebox.showerror(title="Already Exists", message="Task already in list")
                 else:
-                    messagebox.showerror(title="No task", message="Please enter the task you would like to add.")
+                    if task:
+                        self.tasks.append(task)
+                        query = f"""
+                                    INSERT INTO `{self.selected_date}` VALUES({index}, '{task[1]}', {task[2]});
+                                """
+                        cursor.execute(query)
+                        cnx.commit()
+                        self.listbox.insert(tk.END, self.tasks[-1][1])
+                        self.new_task_entry.delete(0, tk.END)
+                    else:
+                        messagebox.showerror(title="No task", message="Please enter the task you would like to add.")
         else:
             messagebox.showerror(title="Date Error", message="You can only add task to today's list")
 
